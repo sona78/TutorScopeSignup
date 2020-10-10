@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "tutorscopesignup",
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
