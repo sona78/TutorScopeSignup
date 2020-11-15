@@ -130,6 +130,7 @@ class editPage extends React.Component{
       });
     });
     this.setState({SessionLog: SessionLog})
+
   }
   handleSubjectChange(e){
     this.setState({Subject: e})
@@ -207,7 +208,9 @@ class editPage extends React.Component{
     let SessionDays = this.state.SessionDays
     let Mark = Time + " - " + Tutor
     SessionDays[Day][Mark] = {Link: Link, Tutor: Tutor}
-
+ 
+    
+    
     db.ref()
     .update({
       SessionShort,
@@ -219,6 +222,7 @@ class editPage extends React.Component{
     .then(_ => {
       window.location.reload()  
     });
+    
     }else{
       alert("Please fill out all fields")
     }
@@ -255,11 +259,13 @@ class editPage extends React.Component{
     let SessionShort = this.state.SessionShort
     let SessionSubjects = this.state.SessionSubjects
 
+
     if (Day !== "" && Index !== "" && Tutor !== "" && Time !== ""){
       AllTutors[Day].splice(Index, 1)
       delete SessionDays[Day][SessionDaysIndex]
       SessionShort[Day].splice(Index, 1)
       SessionSubjects[Day].splice(Index,1)
+      
       
       db.ref()
       .update({
@@ -272,6 +278,7 @@ class editPage extends React.Component{
       .then(_ => {
         window.location.reload()  
       });
+      
       }else{
         alert("Please fill out all fields")
       }
@@ -298,6 +305,7 @@ class editPage extends React.Component{
               <Dropdown.Item eventKey="English">English</Dropdown.Item>
               <Dropdown.Item eventKey="History">History</Dropdown.Item>
               <Dropdown.Item eventKey="Foreign Language">Foreign Language</Dropdown.Item>
+              <Dropdown.Item eventKey="Fine Arts">Fine Arts</Dropdown.Item>
               <Dropdown.Item eventKey="Other">Other</Dropdown.Item>
             </DropdownButton>
           <br/>
@@ -345,6 +353,7 @@ class editPage extends React.Component{
               <Dropdown.Item eventKey="English">English</Dropdown.Item>
               <Dropdown.Item eventKey="History">History</Dropdown.Item>
               <Dropdown.Item eventKey="Foreign Language">Foreign Language</Dropdown.Item>
+              <Dropdown.Item eventKey="Fine Arts">Fine Arts</Dropdown.Item>
               <Dropdown.Item eventKey="Other">Other</Dropdown.Item>
             </DropdownButton>
           <br/>
@@ -419,6 +428,7 @@ class Main extends React.Component{
       Date: "",
       Index: "",
       Tutor: "",
+      TutorFormat: "",
       SessionDays: [],
       SessionSubjects:[],
       Sessions: [],
@@ -540,18 +550,34 @@ class Main extends React.Component{
   }
   
   handleSubjectEnter(e){
+    this.setState({FinalSessions:[]})
+    this.setState({Duration: 1})
+    this.setState({SessionFormat: ""})
+    this.setState({SessionTime: ""})
+    this.setState({Tutor: ""})
+    this.setState({TutorFormat:""})
+    this.setState({SessionLink:""})
     FinalSessionList = []
+    this.setState({Subject:""})
     this.setState({FinalSessions: FinalSessionList})
     let AllSubjects = this.state.AllSubjects
     let SubjectList = AllSubjects[0]
     this.setState({SubjectList: SubjectList[e]})
     this.setState({SubjectGroup: e})
+
   }
   handleClose(){
     this.setState({isOpen: false})
     window.location.reload()
   }
   handleDateEnter(e){
+    this.setState({FinalSessions:[]})
+    this.setState({Duration: 1})
+    this.setState({SessionFormat: ""})
+    this.setState({SessionTime: ""})
+    this.setState({Tutor: ""})
+    this.setState({TutorFormat:""})
+    this.setState({SessionLink:""})
     if (e > (Date.now() + 86400000) && e < (Date.now() + 2592000000)){
     FinalSessionList = []
     this.setState({FinalSessions: FinalSessionList})
@@ -561,6 +587,8 @@ class Main extends React.Component{
     let Sessions = this.state.SessionDays[e]    
     this.setState({Sessions: Sessions})
     this.setState({SessionShortDay: this.state.SessionShort[Day]})
+    }else{
+      alert("Date must between 48 hours and 1 month out from the current time")
     }
   }
   handleSessionEnter(e){
@@ -569,16 +597,35 @@ class Main extends React.Component{
     Tutor = this.state.AllTutors[Day][Index[Time]]
     this.setState({TimeIndex: Index[Time]})
     this.setState({Index: Number(Time)})
+    this.setState({Duration: 1})
     Time = this.state.SessionShort[Day][Index[Time]]
     let SessionTime = Time + " - " + Tutor
     let total = this.state.SessionDays[Day]
+    let TutorRaw = total[SessionTime].Tutor
+    let IndexChar = 0;
+    var regexp = /^[A-Z]/;
+    for (var i = TutorRaw.length - 1; i >= 0; i --){
+      if (regexp.test(TutorRaw.charAt(i)) === true){
+        IndexChar = i
+        break;
+      }
+    }
+    let TutorFormat = TutorRaw.substring(0,IndexChar) + " " + TutorRaw.substring(IndexChar, TutorRaw.length)
     this.setState({SessionLink: total[SessionTime].Link})
-    this.setState({Tutor: total[SessionTime].Tutor})
+    this.setState({Tutor: TutorRaw})
+    this.setState({TutorFormat: TutorFormat})
     this.setState({SessionTime: Time})
 
   }
   handleSubjectSelect(e){
     this.setState({Subject: e})
+    this.setState({FinalSessions:[]})
+    this.setState({Duration: 1})
+    this.setState({SessionFormat: ""})
+    this.setState({SessionTime: ""})
+    this.setState({Tutor: ""})
+    this.setState({TutorFormat:""})
+    this.setState({SessionLink:""})
   }
   handleSessionCheck(){
     if (FinalSessionList && FinalSessionList.length){
@@ -587,6 +634,15 @@ class Main extends React.Component{
     }else{
       this.setState({FinalSessions: ["No Sessions Available on this Date"]})
       this.setState({SessionTrue: true})
+    }
+    if(this.state.SubjectGroup === ""){
+      alert("Please enter a Subject")
+    }
+    if(this.state.Subject === ""){
+      alert("Please enter a Subtopic")
+    }
+    if(this.state.Date === ""){
+      alert("Please select a Date")
     }
   }
   handleFNameChange(e){
@@ -659,6 +715,9 @@ class Main extends React.Component{
         AllSessionChosen.push(Index[this.state.Index + i])
       }
     }
+    if (duration !== e){
+      alert("Duration Not Avaliable")
+    }
     this.setState({Duration: duration})
   }
   handleTopicChange(e){
@@ -677,6 +736,7 @@ class Main extends React.Component{
     let Name = this.state.FName + " " + this.state.LName
     let Email = this.state.Email
     let Topic = this.state.Topic
+    let TutorFormat = this.state.TutorFormat
     const log_id = `${LName}_${FName}-${Date}-${Time}-${Tutor}`
     
     for (var i = 0; i < Duration; i ++){
@@ -701,10 +761,12 @@ class Main extends React.Component{
         Time,
         log_id
       })
+  
     
-    //emailjs.send('default_service', 'template_XRgzM4be', {Name: Name, Email: Email, Date: Date, Time: Time, Subject: Subject, Duration: Duration, Topic: Topic, Tutor: Tutor, Link: Link}, 'user_d1Xqe50jKh1T1jDv7xgG5')
-      .then(_ => {
+    .then(_ => {
+        emailjs.send('default_service', 'template_XRgzM4be', {Name: Name, Email: Email, Date: Date, Time: Time, Subject: Subject, Duration: Duration, Topic: Topic, Tutor: TutorFormat, Link: Link}, 'user_d1Xqe50jKh1T1jDv7xgG5')
         this.setState({isOpen: true})
+        
         
   });
   }else{
@@ -744,6 +806,7 @@ class Main extends React.Component{
               <Dropdown.Item eventKey="English">English</Dropdown.Item>
               <Dropdown.Item eventKey="History">History</Dropdown.Item>
               <Dropdown.Item eventKey="Foreign Language">Foreign Language</Dropdown.Item>
+              <Dropdown.Item eventKey="Fine Arts">Fine Arts</Dropdown.Item>
               <Dropdown.Item eventKey="Other">Other</Dropdown.Item>
             </DropdownButton>
             <br/>
@@ -766,7 +829,7 @@ class Main extends React.Component{
           <br/><br/>
           <Button variant = "secondary" onClick={this.handleSessionCheck}>Check Session Timings</Button>
           <br/><br/>
-          <Form.Label>Session Timings (All times in CDT):</Form.Label> <br/>
+          <Form.Label>Session Start Timings (All times in CDT):</Form.Label> <br/>
           <ButtonGroup onClick = {this.handleSessionEnter}>
             {this.state.FinalSessions.map((session,index) => {
             return (
@@ -774,7 +837,8 @@ class Main extends React.Component{
             )})}
           </ButtonGroup>
           <br/><br/>
-          <h5><strong>Tutor: </strong> {this.state.Tutor} </h5><br/>
+          <h5><strong>Start Time: </strong> {this.state.SessionTime} </h5><br/>
+          <h5><strong>Tutor: </strong> {this.state.TutorFormat} </h5><br/>
           <Form.Group controlId="formDuration">
             <Form.Label>Session Duration</Form.Label>
             <DropdownButton variant = "secondary"  onSelect = {this.handleDurationChange} title = {this.state.Duration + " slot"} >
