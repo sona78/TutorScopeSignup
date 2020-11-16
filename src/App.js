@@ -785,7 +785,7 @@ class Main extends React.Component{
           </h1>
       </Jumbotron>
       <Jumbotron fluid>
-        <Form style = {{margin: "20px"}}>
+        <Form style = {{margin: "20px", marginTop: "0px"}}>
           <h1>TutorScope Session Signup</h1><br/>
         <Form.Group controlId="formName">
           <Form.Label>First Name</Form.Label>
